@@ -1,0 +1,57 @@
+#cloud-config
+write_files:
+  - path: "/home/core/.bash_profile"
+    permissions: "0700"
+    owner: "core"
+    content: |
+      PATH=$PATH:/var/bin
+      PS1="${role} > "$PS1
+  - path: "/etc/consul.d/agent.hcl"
+    permissions: "0644"
+    owner: "root"
+    encoding: "base64"
+    content: |
+      ${consul_config}
+  - path: "/etc/nomad.d/agent.hcl"
+    permissions: "0644"
+    owner: "root"
+    encoding: "base64"
+    content: |
+      ${nomad_config}
+coreos:
+  update:
+    reboot-strategy: off
+  units:
+   - name: update-engine.service
+     enable: false
+     command: stop
+   - name: consul.service
+     command: start
+     runtime: true
+     content: |
+       [Unit]
+       Description=HashiCorp Consul Agent
+       [Service]
+       Restart=on-failure
+       RestartSec=30
+       SyslogIdentifier=consul-agent
+       ExecStartPre=-/bin/mkdir -p /var/data/consul /var/bin/ /etc/consul.d
+       ExecStartPre=-/usr/bin/curl -o consul.zip https://releases.hashicorp.com/consul/1.0.0/consul_1.0.0_linux_amd64.zip
+       ExecStartPre=-/usr/bin/unzip consul.zip -d /var/bin/
+       ExecStart=/var/bin/consul agent -config-dir=/etc/consul.d
+   - name: nomad.service
+     command: start
+     runtime: true
+     content: |
+       [Unit]
+       Description=HashiCorp Nomad Agent
+       Requires=consul.service
+       After=consul.service
+       [Service]
+       Restart=on-failure
+       RestartSec=30
+       SyslogIdentifier=nomad-agent
+       ExecStartPre=-/bin/mkdir -p /var/data/nomad /var/bin/ /etc/nomad.d
+       ExecStartPre=-/usr/bin/curl -o nomad.zip https://releases.hashicorp.com/nomad/0.7.0-beta1/nomad_0.7.0-beta1_linux_amd64.zip
+       ExecStartPre=-/usr/bin/unzip -d /var/bin/ nomad.zip
+       ExecStart=/var/bin/nomad agent -config=/etc/nomad.d
