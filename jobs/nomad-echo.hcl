@@ -1,5 +1,5 @@
 job "nomad-echo" {
-  datacenters = ["gce-us-central1"]
+  datacenters = ["gce-europe-west2", "aws-eu-west-2"]
   type = "service"
 
   group "default" {
@@ -38,10 +38,8 @@ job "nomad-echo" {
       }
 
       resources {
-        resources {
-          cpu = 256
-          memory = 128
-        }
+        cpu = 256
+        memory = 128
         network {
           port "http" {
             static = 22222
