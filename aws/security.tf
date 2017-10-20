@@ -145,7 +145,7 @@ resource "aws_security_group" "frontend" {
     protocol = "tcp"
     from_port = 9998
     to_port   = 9998
-    security_groups = ["${aws_security_group.lb.id}", "${aws_security_group.bastion.id}"]
+    cidr_blocks = ["${aws_subnet.public.*.cidr_block}", "${var.admin_cidr_ingress}"]
   }
 
   # Consul UI
@@ -153,7 +153,7 @@ resource "aws_security_group" "frontend" {
     protocol = "tcp"
     from_port = 8500
     to_port   = 8500
-    security_groups = ["${aws_security_group.lb.id}"]
+    cidr_blocks = ["${aws_subnet.public.*.cidr_block}", "${var.admin_cidr_ingress}"]
   }
 
   # Nomad UI
@@ -161,15 +161,15 @@ resource "aws_security_group" "frontend" {
     protocol = "tcp"
     from_port = 4646
     to_port   = 4646
-    security_groups = ["${aws_security_group.lb.id}"]
+    cidr_blocks = ["${aws_subnet.public.*.cidr_block}"]
   }
 
   # Fabio HTTP
   ingress {
     protocol = "tcp"
-    from_port = 9999
-    to_port   = 9999
-    security_groups = ["${aws_security_group.lb.id}"]
+    from_port = 80
+    to_port   = 80
+    cidr_blocks = ["${aws_subnet.public.*.cidr_block}", "${var.admin_cidr_ingress}"]
   }
 }
 
