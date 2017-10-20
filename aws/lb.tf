@@ -31,6 +31,7 @@ resource "aws_alb_target_group" "fabio" {
     interval = 10
     port = 9998
     path = "/health"
+    matcher = "200"
   }
 
   lifecycle {
@@ -48,6 +49,7 @@ resource "aws_alb_target_group" "fabio_ui" {
     interval = 10
     port = 9998
     path = "/health"
+    matcher = "200"
   }
 
   lifecycle {
@@ -79,6 +81,7 @@ resource "aws_alb_target_group" "consul" {
   health_check {
     interval = 10
     path = "/v1/agent/self"
+    matcher = "200"
   }
 
   lifecycle {
@@ -110,6 +113,7 @@ resource "aws_alb_target_group" "nomad" {
   health_check {
     interval = 10
     path = "/v1/agent/self"
+    matcher = "200"
   }
 
   lifecycle {
